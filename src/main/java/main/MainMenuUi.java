@@ -18,7 +18,7 @@ public class MainMenuUi {
             System.out.println("1. Create an account");
             System.out.println("2. Display account balance");
             System.out.println("3. Make a transaction");
-            System.out.println("4. Generate account statement");
+            System.out.println("4. Review a transaction"); // Previously: Generate account statement
             System.out.println("0. Exit");
 
             String userChoice = scanner.next();
@@ -34,9 +34,7 @@ public class MainMenuUi {
                     MainMenuMethods.createTransaction();
                     break;
                 case "4":
-                    System.out.println("This functionality will be available in 1h time");
-                    mainMenu();
-                    //MainMenuMethods.systemExit();
+                    MainMenuMethods.getTransaction();
                     break;
                 case "0":
                     MainMenuMethods.systemExit();

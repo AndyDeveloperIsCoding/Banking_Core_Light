@@ -37,8 +37,10 @@ public class MainMenuMethods {
         System.out.println("");
         System.out.println("New account has been created!");
         System.out.println("");
-        System.out.println("AccountID: " + account.accountId);
-        System.out.println("CustomerID: " + account.customerId);
+        ReadFromDatabase.readAccountIdFromDatabase();
+        System.out.println("AccountID: " + Account.accountId);
+        Account.accountId = -1;
+        //System.out.println("CustomerID: " + account.customerId);
         System.out.println("Your account balance is:");
         if (eur) {
             System.out.println("0 EUR");
@@ -177,5 +179,19 @@ public class MainMenuMethods {
         WriteToDatabase.updateAccountsTable(providedAccountID, transactionAmount, transactionCurrency, transactionDirection);
         System.out.println("Transaction has been successfully executed!");
         MainMenuUi.mainMenu();
+    }
+
+    public static void getTransaction() {
+
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Please provide the AccountID:");
+        int providedAccountID = Integer.valueOf(scanner.nextLine());
+
+        if (!ReadFromDatabase.accountIdCheck(providedAccountID)) {
+            System.out.println("Account with such AccountID is not found.");
+            MainMenuUi.mainMenu();
+        } else {
+            ReadFromDatabase.readTransactionFromDatabase(providedAccountID);
+        }
     }
 }

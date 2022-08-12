@@ -26,45 +26,45 @@ public class WriteToDatabase {
         try {
             con = dataSource.getConnection();
 
-            String makeAnEntryWithproperCUrrency = "INSERT INTO accounts (customerID, accountID, currencyName, currencyBalance) VALUES (?, ?, ?, ?)";
+            String makeAnEntryWithproperCUrrency = "INSERT INTO accounts (currencyName, currencyBalance) VALUES (?, ?)"; //Previously: (customerID, accountID, currencyName, currencyBalance) VALUES (?, ?, ?, ?)
 
             if (MainMenuMethods.eur) {
                 // Statement creation
                 preparedStatementEur = con.prepareStatement(makeAnEntryWithproperCUrrency);
-                preparedStatementEur.setInt(1, Account.customerId);
-                preparedStatementEur.setInt(2, Account.accountId);
-                preparedStatementEur.setString(3, MainMenuMethods.eurString);
-                preparedStatementEur.setInt(4, 0);
+                //TEMP: preparedStatementEur.setInt(1, Account.customerId);
+                //TEMP: preparedStatementEur.setInt(2, Account.accountId);
+                preparedStatementEur.setString(1, MainMenuMethods.eurString);
+                preparedStatementEur.setInt(2, 0);
                 // Statement execution
                 preparedStatementEur.executeUpdate();
             }
             if (MainMenuMethods.sek) {
                 // Statement creation
                 preparedStatementSek = con.prepareStatement(makeAnEntryWithproperCUrrency);
-                preparedStatementSek.setInt(1, Account.customerId);
-                preparedStatementSek.setInt(2, Account.accountId);
-                preparedStatementSek.setString(3, MainMenuMethods.sekString);
-                preparedStatementSek.setInt(4, 0);
+                //preparedStatementSek.setInt(1, Account.customerId);
+                //preparedStatementSek.setInt(2, Account.accountId);
+                preparedStatementSek.setString(1, MainMenuMethods.sekString);
+                preparedStatementSek.setInt(2, 0);
                 // Statement execution
                 preparedStatementSek.executeUpdate();
             }
             if (MainMenuMethods.gbp) {
                 // Statement creation
                 preparedStatementGbp = con.prepareStatement(makeAnEntryWithproperCUrrency);
-                preparedStatementGbp.setInt(1, Account.customerId);
-                preparedStatementGbp.setInt(2, Account.accountId);
-                preparedStatementGbp.setString(3, MainMenuMethods.gbpString);
-                preparedStatementGbp.setInt(4, 0);
+                //preparedStatementGbp.setInt(1, Account.customerId);
+                //preparedStatementGbp.setInt(2, Account.accountId);
+                preparedStatementGbp.setString(1, MainMenuMethods.gbpString);
+                preparedStatementGbp.setInt(2, 0);
                 // Statement execution
                 preparedStatementGbp.executeUpdate();
             }
             if (MainMenuMethods.usd) {
                 // Statement creation
                 preparedStatementUsd = con.prepareStatement(makeAnEntryWithproperCUrrency);
-                preparedStatementUsd.setInt(1, Account.customerId);
-                preparedStatementUsd.setInt(2, Account.accountId);
-                preparedStatementUsd.setString(3, MainMenuMethods.usdString);
-                preparedStatementUsd.setInt(4, 0);
+                //preparedStatementUsd.setInt(1, Account.customerId);
+                //preparedStatementUsd.setInt(2, Account.accountId);
+                preparedStatementUsd.setString(1, MainMenuMethods.usdString);
+                preparedStatementUsd.setInt(2, 0);
                 // Statement execution
                 preparedStatementUsd.executeUpdate();
             }
@@ -175,14 +175,13 @@ public class WriteToDatabase {
         try {
             con = dataSource.getConnection();
 
-            //TEMP System.out.println("Specific currency balance before making the change to table is (should be atleast 15 EUR) " + Main.specificCurrencyBalance);
             String updateCurrencyBalance = "UPDATE accounts SET currencyBalance = ? WHERE accountID = ? AND currencyName = ?";
 
             // Statement creation
             preparedStatementCurrencyBalanceUpdate = con.prepareStatement(updateCurrencyBalance);
-            if(transactionDirection.equals("in")){
+            if (transactionDirection.equals("in")) {
                 preparedStatementCurrencyBalanceUpdate.setInt(1, (Main.specificCurrencyBalance + transactionAmount));
-            } else if(transactionDirection.equals("out")){
+            } else if (transactionDirection.equals("out")) {
                 preparedStatementCurrencyBalanceUpdate.setInt(1, (Main.specificCurrencyBalance - transactionAmount));
             }
             preparedStatementCurrencyBalanceUpdate.setInt(2, providedAccountID);
@@ -190,19 +189,6 @@ public class WriteToDatabase {
 
             // Statement execution
             ReadFromDatabase.execution = preparedStatementCurrencyBalanceUpdate.executeUpdate();
-            //TEMP System.out.println("Execution at the moment of updating the table is " + ReadFromDatabase.execution);
-
-            /* THIS SHOULD WORK
-            String addBalanceSql = "UPDATE accounts SET currencyBalance = currencyBalance + 0 WHERE accountID = ? AND currencyName = ?";
-
-            preparedStatement = con.prepareStatement(addBalanceSql);
-            preparedStatement.setInt(1, accountId);
-            preparedStatement.setString(2, transferCurrency);
-
-            // Statement execution
-            execution = preparedStatement.executeUpdate();
-
-             */
 
         } catch (SQLException e) {
             e.printStackTrace();

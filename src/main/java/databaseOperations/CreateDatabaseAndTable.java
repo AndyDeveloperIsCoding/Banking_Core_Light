@@ -20,26 +20,15 @@ public class CreateDatabaseAndTable {
         PreparedStatement preparedStatementAccount = null;
         PreparedStatement preparedStatementAccountStatement = null;
 
+        // Table for storing account data
         try {
             con = dataSource.getConnection();
 
-            // Table for storing account data
-
             String createAccountTable = "CREATE TABLE IF NOT EXISTS accounts(" +
-                    "customerID INTEGER(4) NOT NULL," +
-                    "accountID INTEGER(4) NOT NULL," +
+                    //"customerID INTEGER," +
+                    "accountID INTEGER PRIMARY KEY," +
                     "currencyName VARCHAR(3) NOT NULL ," +
                     "currencyBalance INTEGER NOT NULL DEFAULT 0 );";
-
-            /* Alternatively considered SQL
-            String createAccountTable = "CREATE TABLE IF NOT EXISTS accounts(" +
-                    "customerID INTEGER(4) NOT NULL," +
-                    "accountID INTEGER(4) NOT NULL," +
-                    "eur INTEGER NOT NULL NOT NULL DEFAULT 0," +
-                    "sek INTEGER NOT NULL NOT NULL DEFAULT 0," +
-                    "gbp INTEGER NOT NULL NOT NULL DEFAULT 0," +
-                    "usd INTEGER NOT NULL NOT NULL DEFAULT 0 );";
-             */
 
             // Statement creation
             preparedStatementAccount = con.prepareStatement(createAccountTable);
@@ -48,8 +37,8 @@ public class CreateDatabaseAndTable {
 
             // Table for storing account statement data
             String createStatementTable = "CREATE TABLE IF NOT EXISTS statements(" +
-                    "accountID INTEGER(4)," +
-                    "transactionID INTEGER(4) PRIMARY KEY," +
+                    "accountID INTEGER," +
+                    "transactionID INTEGER PRIMARY KEY," +
                     "amount INTEGER," +
                     "currencyName VARCHAR(3)," +
                     "direction VARCHAR(3)," +
