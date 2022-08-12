@@ -2,16 +2,17 @@ package objects;
 
 public class Account {
 
-    public static int customerID = 1550;
-    public static int accountID = 2305;
-    private String country;
+    public static int customerId = 1550;
+    public static int accountId = 2305;
+
+    // private String country; // Country is not saved into database
     private String[] currencyName;
     private int[] currencyBalance;
 
-    public Account(String country){
-        this.customerID++;
-        this.accountID++;
-        this.country = country;
+    public Account(){
+        this.customerId++;
+        this.accountId++;
+        // this.country = country; // Country is not saved into database
         this.currencyName = new String[]{"EUR", "SEK", "GBP", "USD"};
         this.currencyBalance = new int[]{0, 0, 0, 0};
     }

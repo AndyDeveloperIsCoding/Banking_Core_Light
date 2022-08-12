@@ -1,5 +1,7 @@
 package main;
 
+import databaseOperations.ReadFromDatabase;
+
 import java.util.Scanner;
 
 public class MainMenuUi {
@@ -25,7 +27,7 @@ public class MainMenuUi {
                     MainMenuMethods.createAccount();
                     break;
                 case "2":
-                    //ReadFromDatabase.loggingIn();
+                    ReadFromDatabase.getAccount();
                     break;
                 case "3":
                     //ainMenuMethods.systemExit();

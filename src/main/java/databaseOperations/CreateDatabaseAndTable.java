@@ -24,11 +24,23 @@ public class CreateDatabaseAndTable {
             con = dataSource.getConnection();
 
             // Table for storing account data
+
             String createAccountTable = "CREATE TABLE IF NOT EXISTS accounts(" +
                     "customerID INTEGER(4) NOT NULL," +
                     "accountID INTEGER(4) NOT NULL," +
                     "currencyName VARCHAR(3) NOT NULL ," +
                     "currencyBalance INTEGER NOT NULL DEFAULT 0 );";
+
+            /* Alternatively considered SQL
+            String createAccountTable = "CREATE TABLE IF NOT EXISTS accounts(" +
+                    "customerID INTEGER(4) NOT NULL," +
+                    "accountID INTEGER(4) NOT NULL," +
+                    "eur INTEGER NOT NULL NOT NULL DEFAULT 0," +
+                    "sek INTEGER NOT NULL NOT NULL DEFAULT 0," +
+                    "gbp INTEGER NOT NULL NOT NULL DEFAULT 0," +
+                    "usd INTEGER NOT NULL NOT NULL DEFAULT 0 );";
+             */
+
             // Statement creation
             preparedStatementAccount = con.prepareStatement(createAccountTable);
             // Statement execution
