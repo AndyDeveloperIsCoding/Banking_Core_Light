@@ -142,15 +142,6 @@ public class WriteToDatabase {
             // Statement execution
             preparedStatementTransaction.executeUpdate();
 
-            /*
-            // Update table
-            String updateCurrencyBalance = "UPDATE accounts SET currencyBalance = " + Main.specificCurrencyBalance + " WHERE accountID = ? AND currencyName = ?";
-            preparedStatementTransaction = con.prepareStatement(updateCurrencyBalance);
-            preparedStatementTransaction.setInt(1, providedAccountID);
-            preparedStatementTransaction.setString(2, transactionCurrency);
-            preparedStatementTransaction.executeUpdate();
-             */
-
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
@@ -172,7 +163,7 @@ public class WriteToDatabase {
 
     }
 
-    public static void updateAccountsTable(int providedAccountID, int transactionAmount, String transactionCurrency) {
+    public static void updateAccountsTable(int providedAccountID, int transactionAmount, String transactionCurrency, String transactionDirection) {
 
         SQLiteDataSource dataSource = new SQLiteDataSource();
         String url = "jdbc:sqlite:" + Main.databaseFileName;
@@ -185,12 +176,17 @@ public class WriteToDatabase {
             con = dataSource.getConnection();
 
             //TEMP System.out.println("Specific currency balance before making the change to table is (should be atleast 15 EUR) " + Main.specificCurrencyBalance);
-            String updateCurrencyBalance = "UPDATE accounts SET currencyBalance = " + (Main.specificCurrencyBalance + transactionAmount) + " WHERE accountID = ? AND currencyName = ?";
+            String updateCurrencyBalance = "UPDATE accounts SET currencyBalance = ? WHERE accountID = ? AND currencyName = ?";
 
             // Statement creation
             preparedStatementCurrencyBalanceUpdate = con.prepareStatement(updateCurrencyBalance);
-            preparedStatementCurrencyBalanceUpdate.setInt(1, providedAccountID);
-            preparedStatementCurrencyBalanceUpdate.setString(2, transactionCurrency);
+            if(transactionDirection.equals("in")){
+                preparedStatementCurrencyBalanceUpdate.setInt(1, (Main.specificCurrencyBalance + transactionAmount));
+            } else if(transactionDirection.equals("out")){
+                preparedStatementCurrencyBalanceUpdate.setInt(1, (Main.specificCurrencyBalance - transactionAmount));
+            }
+            preparedStatementCurrencyBalanceUpdate.setInt(2, providedAccountID);
+            preparedStatementCurrencyBalanceUpdate.setString(3, transactionCurrency);
 
             // Statement execution
             ReadFromDatabase.execution = preparedStatementCurrencyBalanceUpdate.executeUpdate();

@@ -174,7 +174,7 @@ public class MainMenuMethods {
 
         System.out.println("Saving the transaction to database..."); // Temp
         WriteToDatabase.saveTransactionToDatabase(providedAccountID, transactionAmount, transactionCurrency, transactionDirection, transactionDescription);
-        WriteToDatabase.updateAccountsTable(providedAccountID, transactionAmount, transactionCurrency);
+        WriteToDatabase.updateAccountsTable(providedAccountID, transactionAmount, transactionCurrency, transactionDirection);
         System.out.println("Transaction has been successfully executed!");
         MainMenuUi.mainMenu();
     }
