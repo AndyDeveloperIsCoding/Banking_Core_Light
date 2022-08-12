@@ -2,12 +2,14 @@ package databaseOperations;
 
 import main.Main;
 import main.MainMenuMethods;
+import main.MainMenuUi;
 import objects.Account;
 import org.sqlite.SQLiteDataSource;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Scanner;
 
 public class WriteToDatabase {
 
@@ -112,4 +114,62 @@ public class WriteToDatabase {
     }
 
 
+    public static void createTransaction() {
+
+        Scanner scanner = new Scanner(System.in);
+
+        // User input 1
+        System.out.println("Please provide the AccountID:");
+        int providedAccountID =Integer.valueOf(scanner.nextLine());
+        // Check 1/6: Check if the account with provided ID exists
+        if(!ReadFromDatabase.accountIdCheck(providedAccountID)){
+            System.out.println("Account with such AccountID is not found.");
+            MainMenuUi.mainMenu();
+        }
+
+        // User input 2
+        System.out.println("Please provide the transaction amount:");
+        int transferAmount =Integer.valueOf(scanner.nextLine());
+        // Check 2/6: Check if the provided amount is positive
+        if (transferAmount < 0){
+            System.out.println("The provided amount is negative. it is not possible to make a transaction with a negative amount.");
+            MainMenuUi.mainMenu();
+        }
+
+        // User input 3
+        System.out.println("Please provide the transaction currency:");
+        String transferCurrency = scanner.nextLine();
+        // Check 3/6: Check the currency is allowed on the account
+        if(!ReadFromDatabase.checkIfCurrencyAllowed(providedAccountID, transferCurrency)){
+            System.out.println(transferCurrency.toUpperCase() + " currency is not allowed on this account.");
+            MainMenuUi.mainMenu();
+        }
+
+        // User input 4
+        System.out.println("Please provide the transaction direction: receipt (in) or transfer (out):");
+        String transactionDirection = scanner.nextLine();
+        // Check 4/6: Check if the direction is provided properly
+        if(transactionDirection.toLowerCase().equals("in") || transactionDirection.toLowerCase().equals("receipt")){
+            transactionDirection = "in";
+        } else if (transactionDirection.toLowerCase().equals("out") || transactionDirection.toLowerCase().equals("transfer")){
+            transactionDirection = "out";
+        } else {
+            System.out.println("Unknown direction provided. The direction can be whether receipt or transfer");
+            MainMenuUi.mainMenu();
+        }
+        // Check 5/6: In case of funds transfer- check if the provided amount of funds is available
+        if(transactionDirection.equals("out")){
+            if(!ReadFromDatabase.checkIfAmountAvailable(providedAccountID, transferCurrency, transferAmount)){
+                System.out.println("There is not enough funds on the account to make this transfer.");
+                MainMenuUi.mainMenu();
+            }
+        }
+
+
+        // User input 5
+        System.out.println("Please provide a short transaction's description:");
+        String transactionDescription = scanner.nextLine();
+
+        MainMenuUi.mainMenu();
+    }
 }

@@ -1,6 +1,7 @@
 package main;
 
 import databaseOperations.ReadFromDatabase;
+import databaseOperations.WriteToDatabase;
 
 import java.util.Scanner;
 
@@ -30,7 +31,7 @@ public class MainMenuUi {
                     ReadFromDatabase.getAccount();
                     break;
                 case "3":
-                    //ainMenuMethods.systemExit();
+                    WriteToDatabase.createTransaction();
                     break;
                 case "0":
                     MainMenuMethods.systemExit();
