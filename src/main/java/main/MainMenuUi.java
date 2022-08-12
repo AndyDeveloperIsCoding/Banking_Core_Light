@@ -31,13 +31,19 @@ public class MainMenuUi {
                     ReadFromDatabase.getAccount();
                     break;
                 case "3":
-                    WriteToDatabase.createTransaction();
+                    MainMenuMethods.createTransaction();
+                    break;
+                case "4":
+                    System.out.println("This functionality will be available in 1h time");
+                    mainMenu();
+                    //MainMenuMethods.systemExit();
                     break;
                 case "0":
                     MainMenuMethods.systemExit();
                     break;
                 default:
                     System.out.println("Unknown command");
+                    mainMenu();
                     break;
             }
 

@@ -49,7 +49,7 @@ public class CreateDatabaseAndTable {
             // Table for storing account statement data
             String createStatementTable = "CREATE TABLE IF NOT EXISTS statements(" +
                     "accountID INTEGER(4)," +
-                    "transactionID INTEGER(4)," +
+                    "transactionID INTEGER(4) PRIMARY KEY," +
                     "amount INTEGER," +
                     "currencyName VARCHAR(3)," +
                     "direction VARCHAR(3)," +

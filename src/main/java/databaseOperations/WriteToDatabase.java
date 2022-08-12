@@ -2,18 +2,16 @@ package databaseOperations;
 
 import main.Main;
 import main.MainMenuMethods;
-import main.MainMenuUi;
 import objects.Account;
 import org.sqlite.SQLiteDataSource;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Scanner;
 
 public class WriteToDatabase {
 
-    public static void saveNewAccountToDatabase(){
+    public static void saveNewAccountToDatabase() {
 
         SQLiteDataSource dataSource = new SQLiteDataSource();
         String url = "jdbc:sqlite:" + Main.databaseFileName;
@@ -30,7 +28,7 @@ public class WriteToDatabase {
 
             String makeAnEntryWithproperCUrrency = "INSERT INTO accounts (customerID, accountID, currencyName, currencyBalance) VALUES (?, ?, ?, ?)";
 
-            if(MainMenuMethods.eur){
+            if (MainMenuMethods.eur) {
                 // Statement creation
                 preparedStatementEur = con.prepareStatement(makeAnEntryWithproperCUrrency);
                 preparedStatementEur.setInt(1, Account.customerId);
@@ -40,7 +38,7 @@ public class WriteToDatabase {
                 // Statement execution
                 preparedStatementEur.executeUpdate();
             }
-            if(MainMenuMethods.sek){
+            if (MainMenuMethods.sek) {
                 // Statement creation
                 preparedStatementSek = con.prepareStatement(makeAnEntryWithproperCUrrency);
                 preparedStatementSek.setInt(1, Account.customerId);
@@ -50,7 +48,7 @@ public class WriteToDatabase {
                 // Statement execution
                 preparedStatementSek.executeUpdate();
             }
-            if(MainMenuMethods.gbp){
+            if (MainMenuMethods.gbp) {
                 // Statement creation
                 preparedStatementGbp = con.prepareStatement(makeAnEntryWithproperCUrrency);
                 preparedStatementGbp.setInt(1, Account.customerId);
@@ -60,7 +58,7 @@ public class WriteToDatabase {
                 // Statement execution
                 preparedStatementGbp.executeUpdate();
             }
-            if(MainMenuMethods.usd){
+            if (MainMenuMethods.usd) {
                 // Statement creation
                 preparedStatementUsd = con.prepareStatement(makeAnEntryWithproperCUrrency);
                 preparedStatementUsd.setInt(1, Account.customerId);
@@ -114,62 +112,120 @@ public class WriteToDatabase {
     }
 
 
-    public static void createTransaction() {
+    public static void saveTransactionToDatabase(int providedAccountID, int transactionAmount, String transactionCurrency, String transactionDirection, String transactionDescription) {
 
-        Scanner scanner = new Scanner(System.in);
+        SQLiteDataSource dataSource = new SQLiteDataSource();
+        String url = "jdbc:sqlite:" + Main.databaseFileName;
+        dataSource.setUrl(url);
 
-        // User input 1
-        System.out.println("Please provide the AccountID:");
-        int providedAccountID =Integer.valueOf(scanner.nextLine());
-        // Check 1/6: Check if the account with provided ID exists
-        if(!ReadFromDatabase.accountIdCheck(providedAccountID)){
-            System.out.println("Account with such AccountID is not found.");
-            MainMenuUi.mainMenu();
-        }
+        Connection con = null;
+        PreparedStatement preparedStatementTransaction = null;
 
-        // User input 2
-        System.out.println("Please provide the transaction amount:");
-        int transferAmount =Integer.valueOf(scanner.nextLine());
-        // Check 2/6: Check if the provided amount is positive
-        if (transferAmount < 0){
-            System.out.println("The provided amount is negative. it is not possible to make a transaction with a negative amount.");
-            MainMenuUi.mainMenu();
-        }
+        try {
+            con = dataSource.getConnection();
 
-        // User input 3
-        System.out.println("Please provide the transaction currency:");
-        String transferCurrency = scanner.nextLine();
-        // Check 3/6: Check the currency is allowed on the account
-        if(!ReadFromDatabase.checkIfCurrencyAllowed(providedAccountID, transferCurrency)){
-            System.out.println(transferCurrency.toUpperCase() + " currency is not allowed on this account.");
-            MainMenuUi.mainMenu();
-        }
+            String makeTransactionEntry = "INSERT INTO statements (accountID, amount, currencyName, direction, description, currencyBalance) VALUES (?, ?, ?, ?, ?, ?)";
 
-        // User input 4
-        System.out.println("Please provide the transaction direction: receipt (in) or transfer (out):");
-        String transactionDirection = scanner.nextLine();
-        // Check 4/6: Check if the direction is provided properly
-        if(transactionDirection.toLowerCase().equals("in") || transactionDirection.toLowerCase().equals("receipt")){
-            transactionDirection = "in";
-        } else if (transactionDirection.toLowerCase().equals("out") || transactionDirection.toLowerCase().equals("transfer")){
-            transactionDirection = "out";
-        } else {
-            System.out.println("Unknown direction provided. The direction can be whether receipt or transfer");
-            MainMenuUi.mainMenu();
-        }
-        // Check 5/6: In case of funds transfer- check if the provided amount of funds is available
-        if(transactionDirection.equals("out")){
-            if(!ReadFromDatabase.checkIfAmountAvailable(providedAccountID, transferCurrency, transferAmount)){
-                System.out.println("There is not enough funds on the account to make this transfer.");
-                MainMenuUi.mainMenu();
+            // Statement creation
+            preparedStatementTransaction = con.prepareStatement(makeTransactionEntry);
+            preparedStatementTransaction.setInt(1, providedAccountID);
+            // preparedStatementTransaction.setInt(2, XYZ);
+            preparedStatementTransaction.setInt(2, transactionAmount);
+            preparedStatementTransaction.setString(3, transactionCurrency);
+            preparedStatementTransaction.setString(4, transactionDirection);
+            preparedStatementTransaction.setString(5, transactionDescription);
+            if (transactionDirection.equals("in")) {
+                preparedStatementTransaction.setInt(6, (Main.specificCurrencyBalance + transactionAmount));
+            } else if (transactionDirection.equals("out")) {
+                preparedStatementTransaction.setInt(6, (Main.specificCurrencyBalance - transactionAmount));
+            }
+            // Statement execution
+            preparedStatementTransaction.executeUpdate();
+
+            /*
+            // Update table
+            String updateCurrencyBalance = "UPDATE accounts SET currencyBalance = " + Main.specificCurrencyBalance + " WHERE accountID = ? AND currencyName = ?";
+            preparedStatementTransaction = con.prepareStatement(updateCurrencyBalance);
+            preparedStatementTransaction.setInt(1, providedAccountID);
+            preparedStatementTransaction.setString(2, transactionCurrency);
+            preparedStatementTransaction.executeUpdate();
+             */
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            if (preparedStatementTransaction != null) {
+                try {
+                    preparedStatementTransaction.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (con != null) {
+                try {
+                    con.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
+    }
 
-        // User input 5
-        System.out.println("Please provide a short transaction's description:");
-        String transactionDescription = scanner.nextLine();
+    public static void updateAccountsTable(int providedAccountID, int transactionAmount, String transactionCurrency) {
 
-        MainMenuUi.mainMenu();
+        SQLiteDataSource dataSource = new SQLiteDataSource();
+        String url = "jdbc:sqlite:" + Main.databaseFileName;
+        dataSource.setUrl(url);
+
+        Connection con = null;
+        PreparedStatement preparedStatementCurrencyBalanceUpdate = null;
+
+        try {
+            con = dataSource.getConnection();
+
+            //TEMP System.out.println("Specific currency balance before making the change to table is (should be atleast 15 EUR) " + Main.specificCurrencyBalance);
+            String updateCurrencyBalance = "UPDATE accounts SET currencyBalance = " + (Main.specificCurrencyBalance + transactionAmount) + " WHERE accountID = ? AND currencyName = ?";
+
+            // Statement creation
+            preparedStatementCurrencyBalanceUpdate = con.prepareStatement(updateCurrencyBalance);
+            preparedStatementCurrencyBalanceUpdate.setInt(1, providedAccountID);
+            preparedStatementCurrencyBalanceUpdate.setString(2, transactionCurrency);
+
+            // Statement execution
+            ReadFromDatabase.execution = preparedStatementCurrencyBalanceUpdate.executeUpdate();
+            //TEMP System.out.println("Execution at the moment of updating the table is " + ReadFromDatabase.execution);
+
+            /* THIS SHOULD WORK
+            String addBalanceSql = "UPDATE accounts SET currencyBalance = currencyBalance + 0 WHERE accountID = ? AND currencyName = ?";
+
+            preparedStatement = con.prepareStatement(addBalanceSql);
+            preparedStatement.setInt(1, accountId);
+            preparedStatement.setString(2, transferCurrency);
+
+            // Statement execution
+            execution = preparedStatement.executeUpdate();
+
+             */
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            if (preparedStatementCurrencyBalanceUpdate != null) {
+                try {
+                    preparedStatementCurrencyBalanceUpdate.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (con != null) {
+                try {
+                    con.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
     }
 }

@@ -212,20 +212,11 @@ public class ReadFromDatabase {
         return currencyAllowed;
     }
 
+    // From here
+    /*
     public static boolean checkIfAmountAvailable(int providedAccountID, String transferCurrency, int transferAmount){
 
         boolean amountIsAvailable = false;
-
-        /*
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Please provide the AccountID:");
-        int requestedAccountID = Integer.valueOf(scanner.nextLine());
-
-        if(!ReadFromDatabase.accountIdCheck(requestedAccountID)){
-            System.out.println("Account with such AccountID is not found.");
-            MainMenuUi.mainMenu();
-        }
-         */
 
         String url = "jdbc:sqlite:" + Main.databaseFileName;
 
@@ -243,7 +234,7 @@ public class ReadFromDatabase {
 
             // accountId request
             accountDataRequest = con.createStatement();
-            String accountDataRequestSql = "SELECT currencyBalance FROM accounts WHERE accountID = " + providedAccountID + "AND currencyName = " + transferCurrency + ";"; // Earlier:
+            String accountDataRequestSql = "SELECT currencyBalance FROM accounts WHERE accountID = " + providedAccountID + ";"; // Earlier: "&& currencyName = " + transferCurrency +
             accountDataDisplay = accountDataRequest.executeQuery(accountDataRequestSql);
             while (accountDataDisplay.next()) {
                 int availableBalance = accountDataDisplay.getInt("currencyBalance");
@@ -278,6 +269,64 @@ public class ReadFromDatabase {
             }
         }
         return amountIsAvailable;
+    }
+    */
+    // To here
+
+
+    public static void readCurrencyBalance(int providedAccountID, String transactionCurrency) {
+
+        String url = "jdbc:sqlite:" + Main.databaseFileName;
+
+        SQLiteDataSource dataSource = new SQLiteDataSource();
+        dataSource.setUrl(url);
+
+        Connection con = null;
+        PreparedStatement currencyBalanceRequest = null;
+        ResultSet currencyBalanceDisplay = null;
+
+        try {
+            con = dataSource.getConnection();
+
+            String accountBalanceRequestSql = "SELECT currencyBalance FROM accounts WHERE accountID = ? AND currencyName = ?;";
+            currencyBalanceRequest = con.prepareStatement(accountBalanceRequestSql);
+            currencyBalanceRequest.setInt(1, providedAccountID);
+            currencyBalanceRequest.setString(2, transactionCurrency);
+
+            currencyBalanceDisplay = currencyBalanceRequest.executeQuery(); //Earlier: executeQuery(accountBalanceRequestSql)
+
+            while (currencyBalanceDisplay.next()) {
+                //System.out.println("Specific currencty balance before the query: " + Main.specificCurrencyBalance);
+                Main.specificCurrencyBalance = currencyBalanceDisplay.getInt("currencyBalance");
+                // int availableBalance = currencyBalanceDisplay.getInt("currencyBalance");
+                //System.out.println("Specific currencty balance after the query: " + Main.specificCurrencyBalance);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            if (currencyBalanceRequest != null) {
+                try {
+                    currencyBalanceRequest.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (currencyBalanceDisplay != null) {
+                try {
+                    currencyBalanceDisplay.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (con != null) {
+                try {
+                    con.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }
 
