@@ -11,13 +11,16 @@ import java.sql.SQLException;
 
 public class WriteToDatabase {
 
-    public static void saveNewAccountToDatabase() {
+    public static void saveNewAccountToDatabase(String country) {
 
         SQLiteDataSource dataSource = new SQLiteDataSource();
         String url = "jdbc:sqlite:" + Main.databaseFileName;
         dataSource.setUrl(url);
 
         Connection con = null;
+        PreparedStatement preparedStatementCustomers;
+        PreparedStatement preparedStatementAccounts;
+
         PreparedStatement preparedStatementEur = null;
         PreparedStatement preparedStatementSek = null;
         PreparedStatement preparedStatementGbp = null;
@@ -26,87 +29,59 @@ public class WriteToDatabase {
         try {
             con = dataSource.getConnection();
 
-            String makeAnEntryWithproperCUrrency = "INSERT INTO accounts (currencyName, currencyBalance) VALUES (?, ?)"; //Previously: (customerID, accountID, currencyName, currencyBalance) VALUES (?, ?, ?, ?)
+            // Entry into Customers table
+            String makeAnEntryToCustomers = "INSERT INTO customers (country) VALUES (?)";
+            preparedStatementCustomers = con.prepareStatement(makeAnEntryToCustomers);
+            preparedStatementCustomers.setString(1, country);
+            preparedStatementCustomers.executeUpdate();
+
+            // Entry to Accounts table
+            ReadFromDatabase.readCustomerIdFromDatabase();
+            String makeAnEntryToAccounts = "INSERT INTO accounts (customerID) VALUES (?)"; //Previously: (customerID, accountID, currencyName, currencyBalance) VALUES (?, ?, ?, ?)
+            preparedStatementAccounts = con.prepareStatement(makeAnEntryToAccounts);
+            preparedStatementAccounts.setInt(1, Account.customerId);
+            preparedStatementAccounts.executeUpdate();
+
+            // Entry to Currency tables- for the currencies, that customer had chosen
+            ReadFromDatabase.readAccountIdFromDatabase();
 
             if (MainMenuMethods.eur) {
-                // Statement creation
-                preparedStatementEur = con.prepareStatement(makeAnEntryWithproperCUrrency);
-                //TEMP: preparedStatementEur.setInt(1, Account.customerId);
-                //TEMP: preparedStatementEur.setInt(2, Account.accountId);
-                preparedStatementEur.setString(1, MainMenuMethods.eurString);
-                preparedStatementEur.setInt(2, 0);
-                // Statement execution
+
+                String makeAnEntryToEur = "INSERT INTO eur (accountID, currencyName, currencyBalance) VALUES (?, ?, ?)";
+                preparedStatementEur = con.prepareStatement(makeAnEntryToEur);
+                preparedStatementEur.setInt(1, Account.accountId);
+                preparedStatementEur.setString(2, "eur");
+                preparedStatementEur.setInt(3, 0);
                 preparedStatementEur.executeUpdate();
             }
+
             if (MainMenuMethods.sek) {
-                // Statement creation
-                preparedStatementSek = con.prepareStatement(makeAnEntryWithproperCUrrency);
-                //preparedStatementSek.setInt(1, Account.customerId);
-                //preparedStatementSek.setInt(2, Account.accountId);
-                preparedStatementSek.setString(1, MainMenuMethods.sekString);
-                preparedStatementSek.setInt(2, 0);
-                // Statement execution
+                String makeAnEntryToSek = "INSERT INTO sek (accountID, currencyName, currencyBalance) VALUES (?, ?, ?)";
+                preparedStatementSek = con.prepareStatement(makeAnEntryToSek);
+                preparedStatementSek.setInt(1, Account.accountId);
+                preparedStatementSek.setString(2, "sek");
+                preparedStatementSek.setInt(3, 0);
                 preparedStatementSek.executeUpdate();
             }
             if (MainMenuMethods.gbp) {
-                // Statement creation
-                preparedStatementGbp = con.prepareStatement(makeAnEntryWithproperCUrrency);
-                //preparedStatementGbp.setInt(1, Account.customerId);
-                //preparedStatementGbp.setInt(2, Account.accountId);
-                preparedStatementGbp.setString(1, MainMenuMethods.gbpString);
-                preparedStatementGbp.setInt(2, 0);
-                // Statement execution
+                String makeAnEntryToGbp = "INSERT INTO gbp (accountID, currencyName, currencyBalance) VALUES (?, ?, ?)";
+                preparedStatementGbp = con.prepareStatement(makeAnEntryToGbp);
+                preparedStatementGbp.setInt(1, Account.accountId);
+                preparedStatementGbp.setString(2, "gbp");
+                preparedStatementGbp.setInt(3, 0);
                 preparedStatementGbp.executeUpdate();
             }
             if (MainMenuMethods.usd) {
-                // Statement creation
-                preparedStatementUsd = con.prepareStatement(makeAnEntryWithproperCUrrency);
-                //preparedStatementUsd.setInt(1, Account.customerId);
-                //preparedStatementUsd.setInt(2, Account.accountId);
-                preparedStatementUsd.setString(1, MainMenuMethods.usdString);
-                preparedStatementUsd.setInt(2, 0);
-                // Statement execution
+                String makeAnEntryToUsd = "INSERT INTO usd (accountID, currencyName, currencyBalance) VALUES (?, ?, ?)";
+                preparedStatementUsd = con.prepareStatement(makeAnEntryToUsd);
+                preparedStatementUsd.setInt(1, Account.accountId);
+                preparedStatementUsd.setString(2, "usd");
+                preparedStatementUsd.setInt(3, 0);
                 preparedStatementUsd.executeUpdate();
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
-        } finally {
-            if (preparedStatementEur != null) {
-                try {
-                    preparedStatementEur.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (preparedStatementSek != null) {
-                try {
-                    preparedStatementSek.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (preparedStatementGbp != null) {
-                try {
-                    preparedStatementGbp.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (preparedStatementUsd != null) {
-                try {
-                    preparedStatementUsd.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (con != null) {
-                try {
-                    con.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
         }
 
     }
@@ -163,7 +138,7 @@ public class WriteToDatabase {
 
     }
 
-    public static void updateAccountsTable(int providedAccountID, int transactionAmount, String transactionCurrency, String transactionDirection) {
+    public static void updateAccountsTableAfterMakingTransaction(int providedAccountID, int transactionAmount, String transactionCurrency, String transactionDirection) {
 
         SQLiteDataSource dataSource = new SQLiteDataSource();
         String url = "jdbc:sqlite:" + Main.databaseFileName;
@@ -176,7 +151,6 @@ public class WriteToDatabase {
             con = dataSource.getConnection();
 
             String updateCurrencyBalance = "UPDATE accounts SET currencyBalance = ? WHERE accountID = ? AND currencyName = ?";
-
             // Statement creation
             preparedStatementCurrencyBalanceUpdate = con.prepareStatement(updateCurrencyBalance);
             if (transactionDirection.equals("in")) {

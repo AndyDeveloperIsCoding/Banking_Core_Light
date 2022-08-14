@@ -1,6 +1,7 @@
 package databaseOperations;
 
 import main.Main;
+import main.MainMenuMethods;
 import main.MainMenuUi;
 import objects.Account;
 import org.sqlite.SQLiteDataSource;
@@ -151,7 +152,7 @@ public class ReadFromDatabase {
 
     public static int execution = 0;
 
-    public static boolean checkIfCurrencyAllowed(int accountId, String transferCurrency) {
+    public static boolean checkIfCurrencyAllowed(int accountId, String transactionCurrency) {
 
         boolean currencyAllowed = false;
 
@@ -163,18 +164,55 @@ public class ReadFromDatabase {
         Connection con = null;
         PreparedStatement preparedStatement = null;
 
+        PreparedStatement preparedStatementEur;
+        PreparedStatement preparedStatementSek;
+        PreparedStatement preparedStatementGbp;
+        PreparedStatement preparedStatementUsd;
+
         try {
             con = dataSource.getConnection();
 
-            // Statement creation
-            String addBalanceSql = "UPDATE accounts SET currencyBalance = currencyBalance + 0 WHERE accountID = ? AND currencyName = ?";
+            execution = 0;
+            System.out.println("At the beginning the execution is " +execution);
 
-            preparedStatement = con.prepareStatement(addBalanceSql);
+            if (transactionCurrency.equals("eur")) {
+                String makeAnEntryToEur = "UPDATE eur SET currencyBalance = currencyBalance + 0 WHERE accountID = ?;";
+                preparedStatementEur = con.prepareStatement(makeAnEntryToEur);
+                preparedStatementEur.setInt(1, accountId);
+                execution = preparedStatementEur.executeUpdate();
+            }
+            if (transactionCurrency.equals("sek")) {
+                String makeAnEntryToSek = "UPDATE sek SET currencyBalance = currencyBalance + 0 WHERE accountID = ?;";
+                preparedStatementSek = con.prepareStatement(makeAnEntryToSek);
+                preparedStatementSek.setInt(1, accountId);
+                execution = preparedStatementSek.executeUpdate();
+            }
+            if (transactionCurrency.equals("gbp")) {
+                String makeAnEntryToGbp = "UPDATE gbp SET currencyBalance = currencyBalance + 0 WHERE accountID = ?;";
+                preparedStatementGbp = con.prepareStatement(makeAnEntryToGbp);
+                preparedStatementGbp.setInt(1, accountId);
+                execution = preparedStatementGbp.executeUpdate();
+            }
+            if (transactionCurrency.equals("usd")) {
+                String makeAnEntryToUsd = "UPDATE usd SET currencyBalance = currencyBalance + 0 WHERE accountID = ?;";
+                preparedStatementUsd = con.prepareStatement(makeAnEntryToUsd);
+                preparedStatementUsd.setInt(1, accountId);
+                execution = preparedStatementUsd.executeUpdate();
+            }
+
+            /* Old code
+            // Statement creation
+            String checkCurrencySql = "UPDATE accounts SET currencyBalance = currencyBalance + 0 WHERE accountID = ? AND currencyName = ?";
+
+            preparedStatement = con.prepareStatement(checkCurrencySql);
             preparedStatement.setInt(1, accountId);
-            preparedStatement.setString(2, transferCurrency);
+            preparedStatement.setString(2, transactionCurrency);
+
 
             // Statement execution
             execution = preparedStatement.executeUpdate();
+              */
+
 
         } catch (
                 SQLException e) {
@@ -195,7 +233,7 @@ public class ReadFromDatabase {
                 }
             }
         }
-
+        System.out.println("In the end the execution is " +execution);
         if (execution > 0) { // Test values
             currencyAllowed = true;
             execution = 0;
@@ -258,11 +296,7 @@ public class ReadFromDatabase {
 
     public static void readTransactionFromDatabase(int providedAccountID) {
 
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Please provide the AccountID:");
-        int requestedAccountID = Integer.valueOf(scanner.nextLine());
-
-        if (!ReadFromDatabase.accountIdCheck(requestedAccountID)) {
+        if (!ReadFromDatabase.accountIdCheck(providedAccountID)) {
             System.out.println("Account with such AccountID is not found.");
             MainMenuUi.mainMenu();
         }
@@ -271,6 +305,9 @@ public class ReadFromDatabase {
 
         SQLiteDataSource dataSource = new SQLiteDataSource();
         dataSource.setUrl(url);
+
+        // Table header:
+        System.out.println("AccountID\tTransactionID\tAmount\tCurrency\tDirection\tDescription");
 
         Connection con = null;
         Statement accountDataRequest = null;
@@ -283,15 +320,22 @@ public class ReadFromDatabase {
 
             // accountId request
             accountDataRequest = con.createStatement();
-            String accountDataRequestSql = "SELECT currencyName, currencyBalance FROM accounts WHERE accountID = " + requestedAccountID + " GROUP BY accountID;"; // Earlier: "SELECT customerID, currencyName, currencyBalance FROM accounts WHERE accountID = " + requestedAccountID + " GROUP BY accountID;"
+            String accountDataRequestSql = "SELECT accountID, transactionID, amount, currencyName, direction, description FROM statements WHERE accountID = " + providedAccountID + ";"; // Earlier:
             accountDataDisplay = accountDataRequest.executeQuery(accountDataRequestSql);
             while (accountDataDisplay.next()) {
-                System.out.println("AccountID: " + requestedAccountID);
-                //int customerId = accountDataDisplay.getInt("customerID");
-                //System.out.println("CustomerID: " + customerId);
-                System.out.println("Your account balance is:");
+
+                int accountId = accountDataDisplay.getInt("accountID");
+                int transactionId = accountDataDisplay.getInt("transactionID");
+                int amount = accountDataDisplay.getInt("amount");
+                String currencyNameLowerCase = accountDataDisplay.getString("currencyName");
+                String currencyName = currencyNameLowerCase.toUpperCase();
+                String direction = accountDataDisplay.getString("direction");
+                String description = accountDataDisplay.getString("description");
+
+                System.out.println(accountId + "\t\t\t" + + transactionId +  "\t\t\t\t" + amount + "\t\t" + currencyName +  "\t\t\t"  + direction +  "\t\t\t"  + description);
             }
 
+            /*
             // currencies request
             accountCurrenciesRequest = con.createStatement();
             String accountCurrenciesRequestSql = "SELECT currencyName, currencyBalance FROM accounts WHERE accountID = " + requestedAccountID + ";"; // Earlier:
@@ -302,6 +346,7 @@ public class ReadFromDatabase {
                 String currencyName = accountCurrenciesDisplay.getString("currencyName");
                 System.out.println(currencyName);
             }
+             */
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -365,35 +410,40 @@ public class ReadFromDatabase {
             accountIdDisplay = accountIdRequest.executeQuery();
 
             while (accountIdDisplay.next()) {
-                Account.accountId = accountIdDisplay.getInt("accountID") + 1;
+                Account.accountId = accountIdDisplay.getInt("accountID");
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
-        } finally {
-            if (accountIdRequest != null) {
-                try {
-                    accountIdRequest.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (accountIdDisplay != null) {
-                try {
-                    accountIdDisplay.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (con != null) {
-                try {
-                    con.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
         }
     }
 
+    public static void readCustomerIdFromDatabase() {
+
+        String url = "jdbc:sqlite:" + Main.databaseFileName;
+
+        SQLiteDataSource dataSource = new SQLiteDataSource();
+        dataSource.setUrl(url);
+
+        Connection con = null;
+        PreparedStatement customerIdRequest = null;
+        ResultSet customerIdDisplay = null;
+
+        try {
+            con = dataSource.getConnection();
+
+            String customerIdRequestSql = "SELECT customerID FROM customers ORDER BY customerID ASC";
+            customerIdRequest = con.prepareStatement(customerIdRequestSql);
+
+            customerIdDisplay = customerIdRequest.executeQuery();
+
+            while (customerIdDisplay.next()) {
+                Account.customerId = customerIdDisplay.getInt("customerID");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }
 
