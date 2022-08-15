@@ -180,7 +180,7 @@ public class WriteToDatabase {
                 preparedStatementCurrencyBalanceUpdate.setInt(1, (Main.specificCurrencyBalance - transactionAmount));
             }
             preparedStatementCurrencyBalanceUpdate.setInt(2, providedAccountID);
-            preparedStatementCurrencyBalanceUpdate.setString(3, transactionCurrency);
+            // Old line preparedStatementCurrencyBalanceUpdate.setString(3, transactionCurrency);
 
             // Statement execution
             ReadFromDatabase.execution = preparedStatementCurrencyBalanceUpdate.executeUpdate();
