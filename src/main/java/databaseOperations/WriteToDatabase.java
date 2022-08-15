@@ -42,6 +42,14 @@ public class WriteToDatabase {
             preparedStatementAccounts.setInt(1, Account.customerId);
             preparedStatementAccounts.executeUpdate();
 
+            //Update Customers with accountID:
+            ReadFromDatabase.readAccountIdFromDatabase();
+            String makeAnEntryToCustomers2 = "UPDATE customers SET accountID = ? WHERE customerID = ?;";
+            preparedStatementAccounts = con.prepareStatement(makeAnEntryToCustomers2);
+            preparedStatementAccounts.setInt(1, Account.accountId);
+            preparedStatementAccounts.setInt(2, Account.customerId);
+            preparedStatementAccounts.executeUpdate();
+
             // Entry to Currency tables- for the currencies, that customer had chosen
             ReadFromDatabase.readAccountIdFromDatabase();
 
@@ -138,7 +146,8 @@ public class WriteToDatabase {
 
     }
 
-    public static void updateAccountsTableAfterMakingTransaction(int providedAccountID, int transactionAmount, String transactionCurrency, String transactionDirection) {
+    public static String updateCurrencyBalanceSql;
+    public static void updateCurrencyTableAfterMakingTransaction(int providedAccountID, int transactionAmount, String transactionCurrency, String transactionDirection) {
 
         SQLiteDataSource dataSource = new SQLiteDataSource();
         String url = "jdbc:sqlite:" + Main.databaseFileName;
@@ -150,9 +159,21 @@ public class WriteToDatabase {
         try {
             con = dataSource.getConnection();
 
-            String updateCurrencyBalance = "UPDATE accounts SET currencyBalance = ? WHERE accountID = ? AND currencyName = ?";
+            // Different SQLs for different transactions:
+            if (transactionCurrency.equals("eur")) {
+                updateCurrencyBalanceSql = "UPDATE eur SET currencyBalance = ? WHERE accountID = ?;";
+            } else if(transactionCurrency.equals("sek")) {
+                updateCurrencyBalanceSql = "UPDATE sek SET currencyBalance = ? WHERE accountID = ?;";
+            } else if(transactionCurrency.equals("gbp")) {
+                updateCurrencyBalanceSql = "UPDATE gbp SET currencyBalance = ? WHERE accountID = ?;";
+            } else if(transactionCurrency.equals("usd")) {
+                updateCurrencyBalanceSql = "UPDATE usd SET currencyBalance = ? WHERE accountID = ?;";
+            }
+
+            // Previous: String updateCurrencyBalance = "UPDATE accounts SET currencyBalance = ? WHERE accountID = ? AND currencyName = ?";
             // Statement creation
-            preparedStatementCurrencyBalanceUpdate = con.prepareStatement(updateCurrencyBalance);
+
+            preparedStatementCurrencyBalanceUpdate = con.prepareStatement(updateCurrencyBalanceSql);
             if (transactionDirection.equals("in")) {
                 preparedStatementCurrencyBalanceUpdate.setInt(1, (Main.specificCurrencyBalance + transactionAmount));
             } else if (transactionDirection.equals("out")) {

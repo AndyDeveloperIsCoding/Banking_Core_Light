@@ -28,14 +28,15 @@ public class MainMenuMethods {
         askForCurrencies(scanner);
 
         System.out.println("New account has been created!");
+        System.out.println("AccountID before saving:" + Account.accountId +". CustomerID before saving: " + Account.customerId);
         WriteToDatabase.saveNewAccountToDatabase(country);
+        System.out.println("AccountID after saving:" + Account.accountId + ". CustomerID after saving: " + Account.customerId);
 
         System.out.println("");
-        ReadFromDatabase.readAccountIdFromDatabase();
+        //ReadFromDatabase.readAccountIdFromDatabase();
         System.out.println("AccountID: " + Account.accountId);
         System.out.println("CustomerID: " + Account.customerId);
-        Account.accountId = -1;
-        Account.customerId = -1;
+
         System.out.println("Your account balance is:");
         if (eur) {
             System.out.println("0 EUR");
@@ -54,6 +55,9 @@ public class MainMenuMethods {
         sek = false;
         gbp = false;
         usd = false;
+
+        Account.accountId = -1;
+        Account.customerId = -1;
 
         MainMenuUi.mainMenu();
     }
@@ -153,6 +157,7 @@ public class MainMenuMethods {
         if (transactionDirection.equals("out")) {
             if (Main.specificCurrencyBalance < transactionAmount) {
                 System.out.println("There is not enough funds on the account to make this transfer.");
+                Main.specificCurrencyBalance = -1;
                 MainMenuUi.mainMenu();
             }
         }
@@ -168,7 +173,7 @@ public class MainMenuMethods {
 
         System.out.println("Saving the transaction to database..."); // Temp
         WriteToDatabase.saveTransactionToDatabase(providedAccountID, transactionAmount, transactionCurrency, transactionDirection, transactionDescription);
-        WriteToDatabase.updateAccountsTableAfterMakingTransaction(providedAccountID, transactionAmount, transactionCurrency, transactionDirection);
+        WriteToDatabase.updateCurrencyTableAfterMakingTransaction(providedAccountID, transactionAmount, transactionCurrency, transactionDirection);
         System.out.println("Transaction has been successfully executed!");
         MainMenuUi.mainMenu();
     }

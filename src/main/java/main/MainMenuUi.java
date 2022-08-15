@@ -16,7 +16,7 @@ public class MainMenuUi {
             System.out.println("Welcome! Please make a choice:");
             System.out.println("");
             System.out.println("1. Create an account");
-            System.out.println("2. Display account balance");
+            System.out.println("2. Display account information");
             System.out.println("3. Make a transaction");
             System.out.println("4. Review a transaction"); // Previously: Generate account statement
             System.out.println("0. Exit");

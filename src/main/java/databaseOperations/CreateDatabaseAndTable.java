@@ -27,6 +27,7 @@ public class CreateDatabaseAndTable {
             // Table for Customers:
             String createCustomerTable = "CREATE TABLE IF NOT EXISTS customers(" +
                     "customerID INTEGER PRIMARY KEY," +
+                    "accountID INTEGER DEFAULT NULL," +
                     "country VARCHAR NOT NULL);";
             // Statement creation
             preparedStatementAccount = con.prepareStatement(createCustomerTable);
