@@ -11,7 +11,7 @@ import java.sql.SQLException;
 
 public class WriteToDatabase {
 
-    public static void saveNewAccountToDatabase(String country) {
+    public static  void saveNewAccountToDatabase(String country) {
 
         SQLiteDataSource dataSource = new SQLiteDataSource();
         String url = "jdbc:sqlite:" + Main.databaseFileName;
@@ -127,21 +127,6 @@ public class WriteToDatabase {
 
         } catch (SQLException e) {
             e.printStackTrace();
-        } finally {
-            if (preparedStatementTransaction != null) {
-                try {
-                    preparedStatementTransaction.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (con != null) {
-                try {
-                    con.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
         }
 
     }
@@ -170,7 +155,6 @@ public class WriteToDatabase {
                 updateCurrencyBalanceSql = "UPDATE usd SET currencyBalance = ? WHERE accountID = ?;";
             }
 
-            // Previous: String updateCurrencyBalance = "UPDATE accounts SET currencyBalance = ? WHERE accountID = ? AND currencyName = ?";
             // Statement creation
 
             preparedStatementCurrencyBalanceUpdate = con.prepareStatement(updateCurrencyBalanceSql);
@@ -180,28 +164,12 @@ public class WriteToDatabase {
                 preparedStatementCurrencyBalanceUpdate.setInt(1, (Main.specificCurrencyBalance - transactionAmount));
             }
             preparedStatementCurrencyBalanceUpdate.setInt(2, providedAccountID);
-            // Old line preparedStatementCurrencyBalanceUpdate.setString(3, transactionCurrency);
 
             // Statement execution
             ReadFromDatabase.execution = preparedStatementCurrencyBalanceUpdate.executeUpdate();
 
         } catch (SQLException e) {
             e.printStackTrace();
-        } finally {
-            if (preparedStatementCurrencyBalanceUpdate != null) {
-                try {
-                    preparedStatementCurrencyBalanceUpdate.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (con != null) {
-                try {
-                    con.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
         }
 
     }

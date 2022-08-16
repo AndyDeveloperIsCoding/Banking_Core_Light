@@ -1,26 +1,39 @@
 package databaseOperations;
 
 import main.Main;
-
 import org.sqlite.SQLiteDataSource;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
-public class CreateDatabaseAndTable {
 
+public class Database {
 
+    private static Database instance;
+    private final SQLiteDataSource dataSource;
+
+    private Database() {
+        this.dataSource = new SQLiteDataSource();
+    }
+
+    public static Database getInstance() {
+        if (instance == null) {
+            instance = new Database();
+        }
+        return instance;
+    }
+
+    /*
     public static void createDatabaseAndTable() {
 
-        SQLiteDataSource dataSource = new SQLiteDataSource();
-        String url = "jdbc:sqlite:" + Main.databaseFileName;
-        dataSource.setUrl(url);
+        dataSource.setUrl("jdbc:sqlite:" + Main.databaseFileName);
 
-        Connection con = null;
-        PreparedStatement preparedStatementAccount = null;
-        PreparedStatement preparedStatementAccountStatement = null;
-
+        Connection con;
+        PreparedStatement preparedStatementAccount;
+        PreparedStatement preparedStatementAccountStatement;
 
         try {
             con = dataSource.getConnection();
@@ -104,4 +117,7 @@ public class CreateDatabaseAndTable {
             e.printStackTrace();
         }
     }
+
+
+     */
 }

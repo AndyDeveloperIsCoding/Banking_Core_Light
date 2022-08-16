@@ -28,102 +28,23 @@ public class ReadFromDatabase {
         System.out.println("Your account balance is:");
 
         //Display currencies:
-        if(ReadFromDatabase.checkIfCurrencyAllowed(requestedAccountId, "eur")){
+        if (ReadFromDatabase.checkIfCurrencyAllowed(requestedAccountId, "eur")) {
             ReadFromDatabase.readCurrencyBalance(requestedAccountId, "eur");
             System.out.println(Main.specificCurrencyBalance + " EUR");
         }
-        if(ReadFromDatabase.checkIfCurrencyAllowed(requestedAccountId, "sek")){
+        if (ReadFromDatabase.checkIfCurrencyAllowed(requestedAccountId, "sek")) {
             ReadFromDatabase.readCurrencyBalance(requestedAccountId, "sek");
             System.out.println(Main.specificCurrencyBalance + " SEK");
         }
-        if(ReadFromDatabase.checkIfCurrencyAllowed(requestedAccountId, "gbp")){
+        if (ReadFromDatabase.checkIfCurrencyAllowed(requestedAccountId, "gbp")) {
             ReadFromDatabase.readCurrencyBalance(requestedAccountId, "gbp");
             System.out.println(Main.specificCurrencyBalance + " GBP");
         }
-        if(ReadFromDatabase.checkIfCurrencyAllowed(requestedAccountId, "usd")){
+        if (ReadFromDatabase.checkIfCurrencyAllowed(requestedAccountId, "usd")) {
             ReadFromDatabase.readCurrencyBalance(requestedAccountId, "usd");
             System.out.println(Main.specificCurrencyBalance + " USD");
         }
 
-        //Delete all of this later?
-/*
-        String url = "jdbc:sqlite:" + Main.databaseFileName;
-
-        SQLiteDataSource dataSource = new SQLiteDataSource();
-        dataSource.setUrl(url);
-
-        Connection con = null;
-        Statement accountDataRequest = null;
-        ResultSet accountDataDisplay = null;
-        Statement accountCurrenciesRequest = null;
-        ResultSet accountCurrenciesDisplay = null;
-
-        try {
-            con = dataSource.getConnection();
-
-            // accountId request
-            accountDataRequest = con.createStatement();
-            String accountDataRequestSql = "SELECT currencyName, currencyBalance FROM accounts WHERE accountID = " + requestedAccountId + " GROUP BY accountID;"; // Earlier: "SELECT customerID, currencyName, currencyBalance FROM accounts WHERE accountID = " + requestedAccountID + " GROUP BY accountID;"
-            accountDataDisplay = accountDataRequest.executeQuery(accountDataRequestSql);
-            while (accountDataDisplay.next()) {
-                System.out.println("AccountID: " + requestedAccountId);
-                //int customerId = accountDataDisplay.getInt("customerID");
-                //System.out.println("CustomerID: " + customerId);
-
-            }
-
-            // currencies request
-            accountCurrenciesRequest = con.createStatement();
-            String accountCurrenciesRequestSql = "SELECT currencyName, currencyBalance FROM accounts WHERE accountID = " + requestedAccountId + ";"; // Earlier:
-            accountCurrenciesDisplay = accountCurrenciesRequest.executeQuery(accountCurrenciesRequestSql);
-            while (accountCurrenciesDisplay.next()) {
-                int currencyBalance = accountCurrenciesDisplay.getInt("currencyBalance");
-                System.out.print(currencyBalance + " ");
-                String currencyName = accountCurrenciesDisplay.getString("currencyName");
-                System.out.println(currencyName);
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            if (accountDataRequest != null) {
-                try {
-                    accountDataRequest.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (accountDataDisplay != null) {
-                try {
-                    accountDataDisplay.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (accountCurrenciesRequest != null) {
-                try {
-                    accountCurrenciesRequest.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (accountCurrenciesDisplay != null) {
-                try {
-                    accountCurrenciesDisplay.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (con != null) {
-                try {
-                    con.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
- */
     }
 
     public static boolean accountIdCheck(int requestedAccountID) {
@@ -153,21 +74,6 @@ public class ReadFromDatabase {
         } catch (
                 SQLException e) {
             e.printStackTrace();
-        } finally {
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (con != null) {
-                try {
-                    con.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
         }
 
         if (execution > 0) { // Test values
@@ -231,23 +137,8 @@ public class ReadFromDatabase {
         } catch (
                 SQLException e) {
             e.printStackTrace();
-        } finally {
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (con != null) {
-                try {
-                    con.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
         }
-        //System.out.println("In the end the execution is " + execution);
+
         if (execution > 0) { // Test values
             currencyAllowed = true;
             execution = 0;
@@ -259,9 +150,11 @@ public class ReadFromDatabase {
     public static void readCurrencyBalance(int providedAccountID, String transactionCurrency) {
 
         String url = "jdbc:sqlite:" + Main.databaseFileName;
-
+        
         SQLiteDataSource dataSource = new SQLiteDataSource();
         dataSource.setUrl(url);
+
+
 
         Connection con;
         PreparedStatement currencyBalanceRequest;
@@ -275,11 +168,11 @@ public class ReadFromDatabase {
             //Options for different currencies
             if (transactionCurrency.equals("eur")) {
                 accountBalanceRequestSql = "SELECT currencyBalance FROM eur WHERE accountID = ?";
-            } else if(transactionCurrency.equals("sek")) {
+            } else if (transactionCurrency.equals("sek")) {
                 accountBalanceRequestSql = "SELECT currencyBalance FROM sek WHERE accountID = ?";
-            } else if(transactionCurrency.equals("gbp")) {
+            } else if (transactionCurrency.equals("gbp")) {
                 accountBalanceRequestSql = "SELECT currencyBalance FROM gbp WHERE accountID = ?";
-            } else if(transactionCurrency.equals("usd")) {
+            } else if (transactionCurrency.equals("usd")) {
                 accountBalanceRequestSql = "SELECT currencyBalance FROM usd WHERE accountID = ?";
             }
 
@@ -339,60 +232,11 @@ public class ReadFromDatabase {
                 String direction = accountDataDisplay.getString("direction");
                 String description = accountDataDisplay.getString("description");
 
-                System.out.println(accountId + "\t\t\t" + + transactionId +  "\t\t\t\t" + amount + "\t\t" + currencyName +  "\t\t\t"  + direction +  "\t\t\t"  + description);
+                System.out.println(accountId + "\t\t\t" + +transactionId + "\t\t\t\t" + amount + "\t\t" + currencyName + "\t\t\t" + direction + "\t\t\t" + description);
             }
-
-            /*
-            // currencies request
-            accountCurrenciesRequest = con.createStatement();
-            String accountCurrenciesRequestSql = "SELECT currencyName, currencyBalance FROM accounts WHERE accountID = " + requestedAccountID + ";"; // Earlier:
-            accountCurrenciesDisplay = accountCurrenciesRequest.executeQuery(accountCurrenciesRequestSql);
-            while (accountCurrenciesDisplay.next()) {
-                int currencyBalance = accountCurrenciesDisplay.getInt("currencyBalance");
-                System.out.print(currencyBalance + " ");
-                String currencyName = accountCurrenciesDisplay.getString("currencyName");
-                System.out.println(currencyName);
-            }
-             */
 
         } catch (SQLException e) {
             e.printStackTrace();
-        } finally {
-            if (accountDataRequest != null) {
-                try {
-                    accountDataRequest.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (accountDataDisplay != null) {
-                try {
-                    accountDataDisplay.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (accountCurrenciesRequest != null) {
-                try {
-                    accountCurrenciesRequest.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (accountCurrenciesDisplay != null) {
-                try {
-                    accountCurrenciesDisplay.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (con != null) {
-                try {
-                    con.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
         }
     }
 
